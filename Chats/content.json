@@ -1,0 +1,20 @@
+[
+  {
+    "kind0" :"private",
+    "chatId" : "a123",
+    "client1":  "1",
+    "client2":  "3"
+  },
+  {
+
+    "kind0" :"group",
+    "chatId" : "a123",
+    "users":
+      {
+      "client1":  "1",
+      "client2":  "3",
+      "client3" : "2"
+      }
+
+  }
+]
