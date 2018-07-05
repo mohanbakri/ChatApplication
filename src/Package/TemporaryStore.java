@@ -10,6 +10,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 class TemporaryStore {
     static void addToQueue(Message msg) {
@@ -37,46 +39,63 @@ class TemporaryStore {
                 jsonArray = new JSONArray();
                 jsonArray.add(jsonObject);
             }
-            try {
                 writeArrayData(jsonArray, path);
-            } catch (FileNotFoundException ignored) {
-            }
+
+
         }
     }
 
     static void getUserMessages(String userName) {
         Long userId = Data.getIdByUserName(userName);
-        String path = "" + userId + ".json";
+        String path = "c:\\project\\DataBase\\queue\\" + userId + ".json";
         Message message;
         JSONObject jsonObject;
         JSONArray jsonArray;
         try {
             jsonArray = (JSONArray) new JSONParser().parse(new FileReader(path));
+            Thread.sleep(4000);
+
             for (Object object : jsonArray) {
+                System.out.println("out msg");
                 jsonObject = (JSONObject) object;
                 message = new Message(jsonObject.get("msg").toString(),
                         jsonObject.get("from").toString(),
                         jsonObject.get("to").toString(),
                         jsonObject.get("date").toString(),
                         Long.parseLong(jsonObject.get("id").toString()),
-                        jsonObject.get("type").toString());
+                        jsonObject.get("type").toString(),
+                        jsonObject.get("kind").toString());
+                message.printMessage();
                 Client.sendMessage(message);
             }
+            String empty = "[]";
+            jsonArray = (JSONArray) new JSONParser().parse(empty);
+            writeArrayData(jsonArray, path);
         } catch (IOException | ParseException ignored) {
             System.out.println("there is no queued message for  " + userName);
+        } catch (InterruptedException ignored) {
         }
-        try {
-            writeArrayData(null, path);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+
 
     }
 
 
-    private static void writeArrayData(JSONArray jsonArray, String filePath) throws FileNotFoundException {
-        PrintWriter pw = new PrintWriter(filePath);
-        pw.write(jsonArray.toJSONString());
+    private static void writeArrayData(JSONArray jsonArray, String filePath)  {
+        PrintWriter pw = null;
+        try {
+            pw = new PrintWriter(filePath);
+        } catch (FileNotFoundException e) {
+            try {
+                Files.createDirectories(Paths.get("../DataBase/queue"));
+                pw = new PrintWriter(filePath);
+            } catch (IOException ignored) {
+            }
+
+        }
+        if (jsonArray != null)
+            pw.write(jsonArray.toJSONString());
+        else
+            pw.write("[]");
 
         pw.flush();
         pw.close();

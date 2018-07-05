@@ -14,14 +14,16 @@ public class Message implements Serializable {
     private String kind;
     private static final long serialVersionUID = 2L;
 
-    public Message(String msg, String from, String to, String date, long id, String type) {
+    public Message(String msg, String from, String to, String date, long id, String type , String kind) {
         this.msg = msg;
         this.from = from;
         this.to = to;
         this.date = date;
         this.id = id;
         this.type = type;
+        this.kind=kind;
     }
+
 
 
     public String getMsg() {
@@ -82,7 +84,7 @@ public class Message implements Serializable {
                 "\n date : " + date +
                 "\n type : " + type +
                 "\n kind : " + kind +
-                "\n message " + msg
+                "\n message : " + msg
         );
     }
 }

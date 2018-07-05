@@ -25,7 +25,6 @@ public class Client implements Runnable {
         this.oos = oos;
         this.ois = ois;
         this.online = true;
-        TemporaryStore.getUserMessages(user.getUserName());
     }
 
     Client(Socket client, String mac_Address, ObjectOutputStream oos, ObjectInputStream ois) {
@@ -45,6 +44,7 @@ public class Client implements Runnable {
             sign();
         }
         Server.addToHashMap(user.getUserName(), this);
+        TemporaryStore.getUserMessages(user.getUserName());
         chat();
     }
 
@@ -67,6 +67,7 @@ public class Client implements Runnable {
                 e.printStackTrace();
                 this.offline();
             }
+
             assert msg != null;
             switch (msg.getKind()) {
 
@@ -103,7 +104,7 @@ public class Client implements Runnable {
 
     private void messaging(Message msg) {
         switch (msg.getType()) {
-            case "text-message":
+            case "TEXT_MSG":
                 msg.setDate();
                 ChatHistory.storeMessage(msg);
                 boolean successSend = sendMessage(msg);
@@ -146,8 +147,6 @@ public class Client implements Runnable {
         } else {
             return false;
         }
-
-
         return true;
     }
 
@@ -207,7 +206,6 @@ public class Client implements Runnable {
         oos.writeBoolean(true);//he signed in
         oos.writeUTF(user.getUserName());
         oos.flush();
-        TemporaryStore.getUserMessages(user.getUserName());
     }
 
 

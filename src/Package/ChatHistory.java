@@ -10,13 +10,16 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 class ChatHistory {
     private static final Object lock1 = new Object();
 
     static void storeMessage(Message msg) {
+
         String FileName = getFileName(msg.getFrom(), msg.getTo());
-        String path = "c:\\project\\DataBase\\ChatHistory\\"+FileName+".json";
+        String path = "c:\\project\\DataBase\\ChatHistory\\" + FileName + ".json";
 
         if (FileName != null) {
 
@@ -29,9 +32,7 @@ class ChatHistory {
             message.put("msg", msg.getMsg());
 
             try {
-                System.out.println(FileName);
                 JSONObject fileContain = (JSONObject) new JSONParser().parse(new FileReader(path));
-                System.out.println("ChatHistory.storeMessage");
                 JSONArray messages = (JSONArray) fileContain.get("messages");
                 JSONObject lastMessage = (JSONObject) messages.get(messages.size() - 1);
                 long lastId = (long) lastMessage.get("id");
@@ -64,10 +65,8 @@ class ChatHistory {
                 message.put("id", 1);
                 messages.add(message);
                 fileForm.put("messages", messages);
-                try {
-                    writeMessagesOnFile(fileForm, path);
-                } catch (FileNotFoundException ignored) {
-                }
+                writeMessagesOnFile(fileForm, path);
+
             }
         }
     }
@@ -105,11 +104,11 @@ class ChatHistory {
             addedMessage.put("date", msg.getDate());
             addedMessage.put("type", "");
             addedMessage.put("msg", "");
-            addedMessage.put("id",msg.getId());
+            addedMessage.put("id", msg.getId());
             jsonArray = addToJsonArray(addedMessage, jsonArray);
             jsonArray = Data.sortJSONArray(jsonArray);
-            fileContent.put("messages",jsonArray);
-            writeMessagesOnFile(fileContent,path);
+            fileContent.put("messages", jsonArray);
+            writeMessagesOnFile(fileContent, path);
             Message cleanOrder;//= new Message("",msg.getFrom(),msg.getTo(),msg.getDate(),msg.getId(),"deleted-message");
             cleanOrder = msg;
             //TODO clean it up from client devise
@@ -137,8 +136,19 @@ class ChatHistory {
     }
 
 
-    private static void writeMessagesOnFile(JSONObject jsonObject, String path) throws FileNotFoundException {
-        PrintWriter pw = new PrintWriter(path);
+    private static void writeMessagesOnFile(JSONObject jsonObject, String path) {
+        PrintWriter pw = null;
+        try {
+            pw = new PrintWriter(path);
+        } catch (FileNotFoundException e) {
+
+            try {
+                Files.createDirectories(Paths.get("../DataBase/ChatHistory"));
+                pw = new PrintWriter(path);
+            } catch (IOException ignored) {
+            }
+        }
+
         pw.write(jsonObject.toJSONString());
 
         pw.flush();
