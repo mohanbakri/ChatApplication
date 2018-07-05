@@ -17,6 +17,10 @@ class TemporaryStore {
 
         String path = "c:\\project\\DataBase\\queue\\" + userId + ".json";
         JSONObject jsonObject = new JSONObject();
+        if(msg.getType()==null)
+            msg.setType("");
+        if(msg.getKind()==null)
+            msg.setKind("");
         jsonObject.put("msg", msg.getMsg());
         jsonObject.put("from", msg.getFrom());
         jsonObject.put("to", msg.getTo());
@@ -44,7 +48,7 @@ class TemporaryStore {
         Long userId = Data.getIdByUserName(userName);
         String path = "" + userId + ".json";
         Message message;
-        JSONObject jsonObject = new JSONObject();
+        JSONObject jsonObject;
         JSONArray jsonArray;
         try {
             jsonArray = (JSONArray) new JSONParser().parse(new FileReader(path));

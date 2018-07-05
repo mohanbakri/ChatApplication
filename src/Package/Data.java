@@ -10,7 +10,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -23,25 +22,8 @@ class Data {
     private static final String filePath = "C:\\project\\DataBase\\users.json";
 
     static User getUserByMac(String mac_address) {
-       /* Iterator<JSONObject> itr2 = jsonArray.iterator();
-        JSONObject user;
-        while (itr2.hasNext()) {
-            user = itr2.next();
-            if (user.get("macAddress").toString().equals(mac_address)) {
-                return new User(user.get("userName").toString(),
-                        user.get("password").toString(),
-                        user.get("email").toString(),
-                        (long) user.get("id"),
-                        user.get("macAddress").toString(),
-                        (boolean) user.get("signedIn"));
-            }
-        }
-        System.out.println("not founded");
-        return null;*/
 
-        //Iterator<JSONObject> itr2 = jsonArray.iterator();
         JSONObject user;
-      // while (itr2.hasNext()) {
         for (Object object : jsonArray) {
             user = (JSONObject) object;
             if (user.get("macAddress").toString().equals(mac_address)) {
@@ -59,28 +41,10 @@ class Data {
     }
 
     private static User checkPasswordByEmail(User user) {
-      /*  System.out.println("check password by email");
-        Iterator<JSONObject> itr2 = jsonArray.iterator();
-        JSONObject user1;
-        User fullUser = null;
-        while (itr2.hasNext()) {
-            user1 = itr2.next();
-            if (user1.get("email").toString().equals(user.getEmail())) {
-                if (user1.get("password").toString().equals(user.getPassword())) {
-                    fullUser = new User(user1.get("userName").toString(),
-                            "0", user.getEmail(),
-                            Long.parseLong(user1.get("id").toString()),
-                            user.getMac_Address(),
-                            true);
-                    break;
-                }
-            }
-        }
-        return fullUser;*/
         System.out.println("check password by email");
         JSONObject user1;
         User fullUser = null;
-        for(Object object : jsonArray){
+        for (Object object : jsonArray) {
             user1 = (JSONObject) object;
             if (user1.get("email").toString().equals(user.getEmail())) {
                 if (user1.get("password").toString().equals(user.getPassword())) {
@@ -97,29 +61,10 @@ class Data {
     }
 
     private static User checkPasswordByName(User user) {
-       /* System.out.println("check password by name");
-        Iterator<JSONObject> itr2 = jsonArray.iterator();
-        JSONObject user1;
-        User fullUser = null;
-        while (itr2.hasNext()) {
-            user1 = itr2.next();
-            if (user1.get("userName").toString().equals(user.getUserName())) {
-                if (user1.get("password").toString().equals(user.getPassword())) {
-                    fullUser = new User(user.getUserName(),
-                            "0", user1.get("email").toString(),
-                            Long.parseLong(user1.get("id").toString()),
-                            user.getMac_Address(),
-                            true);
-                    break;
-                }
-            }
-        }
-        return fullUser;*/
-
         System.out.println("check password by name");
         JSONObject user1;
         User fullUser = null;
-        for(Object object :jsonArray){
+        for (Object object : jsonArray) {
             user1 = (JSONObject) object;
             if (user1.get("userName").toString().equals(user.getUserName())) {
                 if (user1.get("password").toString().equals(user.getPassword())) {
@@ -143,18 +88,9 @@ class Data {
     }
 
     private static boolean checkNewUserName(String userName) {
-     /*   Iterator<JSONObject> itr2 = jsonArray.iterator();
-        JSONObject user;
-        while (itr2.hasNext()) {
-            user = itr2.next();
-            if (user.get("userName").toString().equals(userName)) {
-                return false;
-            }
-        }
-        return true;*/
 
         JSONObject user;
-        for(Object object : jsonArray){
+        for (Object object : jsonArray) {
             user = (JSONObject) object;
             if (user.get("userName").toString().equals(userName)) {
                 return false;
@@ -166,18 +102,8 @@ class Data {
     }
 
     private static boolean checkNewEmail(String email) {
-       /* Iterator<JSONObject> itr2 = jsonArray.iterator();
         JSONObject user;
-        while (itr2.hasNext()) {
-            user = itr2.next();
-            if (user.get("email").toString().equals(email)) {
-                return false;
-            }
-        }
-        return true;*/
-
-        JSONObject user;
-        for(Object object : jsonArray){
+        for (Object object : jsonArray) {
             user = (JSONObject) object;
             if (user.get("email").toString().equals(email)) {
                 return false;
@@ -200,6 +126,7 @@ class Data {
 
         addToJsonArrayAndFile(m);
         System.out.println("the user is stored");
+        jsonArray = sortJSONArray(jsonArray);//cause of the future , we can add someone with old id
 
     }
 
@@ -223,6 +150,7 @@ class Data {
     static void loadUsersData() throws IOException, ParseException {
 
         jsonArray = get_Users();
+        jsonArray = sortJSONArray(jsonArray);
         JSONObject lastUser = (JSONObject) jsonArray.get(jsonArray.size() - 1);
         id = (long) lastUser.get("id");
         System.out.println("CURRENT ID : " + id);
@@ -243,45 +171,26 @@ class Data {
     }
 
     static void changeState(User user) {
-       /* System.out.println("changing state");
-        Iterator<JSONObject> itr2 = jsonArray.iterator();
-        JSONObject itr1;
-        Map addedNode = new HashMap(6);
-        while (itr2.hasNext()) {
-            itr1 = itr2.next();
-            if (itr1.get("userName").toString().equals(user.getUserName())) {
-                addedNode = itr1;
-                removeFromJsonArray(itr1);
-                itr1.put("macAddress", user.getMac_Address());
-                itr1.put("signedIn", true);
-                try {
-                    addToJsonArrayAndFile(addedNode);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-        }*/
 
         System.out.println("changing state");
         JSONObject user1;
-        Map addedNode = new HashMap(6);
-        for(Object object : jsonArray){
+
+        for (Object object : jsonArray) {
             user1 = (JSONObject) object;
             if (user1.get("userName").toString().equals(user.getUserName())) {
-                addedNode = user1;
+                JSONObject addedNode = user1;
                 removeFromJsonArray(user1);
                 user1.put("macAddress", user.getMac_Address());
                 user1.put("signedIn", true);
                 try {
                     addToJsonArrayAndFile(addedNode);
+                    jsonArray = sortJSONArray(jsonArray);
+                    break;
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
             }
         }
-
-
-
 
     }
 
@@ -293,17 +202,9 @@ class Data {
     }
 
     static long getIdByUserName(String userName) {
-        /*Iterator<JSONObject> itr2 = jsonArray.iterator();
-        JSONObject user1;
-        while (itr2.hasNext()) {
-            user1 = itr2.next();
-            if (user1.get("userName").toString().equals(userName))
-                return Long.parseLong(user1.get("id").toString());
-        }
-        return -1;*/
 
         JSONObject user1;
-        for(Object object : jsonArray){
+        for (Object object : jsonArray) {
             user1 = (JSONObject) object;
             if (user1.get("userName").toString().equals(userName))
                 return Long.parseLong(user1.get("id").toString());
@@ -312,16 +213,8 @@ class Data {
     }
 
     static boolean existUserName(String Username) {
-       /* Iterator<JSONObject> itr2 = jsonArray.iterator();
         JSONObject user1;
-        while (itr2.hasNext()) {
-            user1 = itr2.next();
-            if (user1.get("userName").toString().equals(Username))
-                return true;
-        }
-        return false;*/
-        JSONObject user1;
-            for(Object object : jsonArray){
+        for (Object object : jsonArray) {
             user1 = (JSONObject) object;
             if (user1.get("userName").toString().equals(Username))
                 return true;
@@ -335,5 +228,38 @@ class Data {
         if (!user.getUserName().equals(""))
             return checkPasswordByName(user);
         return checkPasswordByEmail(user);
+    }
+
+    static void signOut(String userName) {
+        JSONObject jsonObject;
+        for (Object object : jsonArray) {
+            jsonObject = (JSONObject) object;
+            if (jsonObject.get("userName").toString().equals(userName)) {
+                jsonObject.put("signedIn", false);
+            }
+        }
+    }
+
+    static JSONArray sortJSONArray(JSONArray jsonArray) {
+        JSONObject t;
+        System.out.println(jsonArray.size());
+        for (int i = 0; i < jsonArray.size(); i++) {
+            for (int j = i + 1; j < jsonArray.size(); j++) {
+                if (Long.parseLong(((JSONObject) jsonArray.get(i)).get("id").toString()) > Long.parseLong(((JSONObject) jsonArray.get(j)).get("id").toString())) {
+                    t = (JSONObject) jsonArray.get(i);
+                    jsonArray.add(i, jsonArray.get(j));
+                    jsonArray.remove(i + 1);
+                    jsonArray.add(j, t);
+                    jsonArray.remove(j + 1);
+                }
+            }
+        }
+        System.out.println("the array has been sorted");
+        try {
+            writeArrayData();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return jsonArray;
     }
 }

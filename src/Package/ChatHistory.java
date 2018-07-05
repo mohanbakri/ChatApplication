@@ -12,13 +12,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 class ChatHistory {
+    private static final Object lock1 = new Object();
 
     static void storeMessage(Message msg) {
         String FileName = getFileName(msg.getFrom(), msg.getTo());
-        String path = "   ChatHistory\\" + FileName + ".json";
+        String path = "c:\\project\\DataBase\\ChatHistory\\"+FileName+".json";
 
         if (FileName != null) {
-            boolean sort = isSmallerBigger(msg.getFrom(), msg.getTo());
 
 
             JSONObject message = new JSONObject();
@@ -48,6 +48,8 @@ class ChatHistory {
             } catch (IOException | ParseException e) {
                 //if it's the first message
                 JSONObject fileForm = new JSONObject();
+                boolean sort = isSmallerBigger(msg.getFrom(), msg.getTo());
+
 
                 if (sort) {
                     fileForm.put("client1", msg.getFrom());
@@ -87,6 +89,53 @@ class ChatHistory {
         else
             return null;
     }
+
+
+    static Message deleteMessage(Message msg) {
+        String FileName = getFileName(msg.getFrom(), msg.getTo());
+        String path = "   ChatHistory\\" + FileName + ".json";
+        try {
+            JSONObject fileContent = (JSONObject) new JSONParser().parse(new FileReader(path));
+            JSONArray jsonArray = (JSONArray) fileContent.get("messages");
+            jsonArray = Data.sortJSONArray(jsonArray);
+            jsonArray = removeFromJsonArray((JSONObject) jsonArray.get((int) (msg.getId() - 1)), jsonArray);
+            JSONObject addedMessage = new JSONObject();
+            addedMessage.put("from", msg.getFrom());
+            addedMessage.put("to", msg.getTo());
+            addedMessage.put("date", msg.getDate());
+            addedMessage.put("type", "");
+            addedMessage.put("msg", "");
+            addedMessage.put("id",msg.getId());
+            jsonArray = addToJsonArray(addedMessage, jsonArray);
+            jsonArray = Data.sortJSONArray(jsonArray);
+            fileContent.put("messages",jsonArray);
+            writeMessagesOnFile(fileContent,path);
+            Message cleanOrder;//= new Message("",msg.getFrom(),msg.getTo(),msg.getDate(),msg.getId(),"deleted-message");
+            cleanOrder = msg;
+            //TODO clean it up from client devise
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
+        return msg;
+    }
+
+    private static JSONArray removeFromJsonArray(JSONObject jsonObject, JSONArray jsonArray) {
+        synchronized (lock1) {
+            jsonArray.remove(jsonObject);
+        }
+        System.out.println("old node removed");
+        return jsonArray;
+    }
+
+    private static JSONArray addToJsonArray(JSONObject jsonObject, JSONArray jsonArray) throws FileNotFoundException {
+        synchronized (lock1) {
+            jsonArray.add(jsonObject);
+        }
+        System.out.println("new node added");
+        return jsonArray;
+
+    }
+
 
     private static void writeMessagesOnFile(JSONObject jsonObject, String path) throws FileNotFoundException {
         PrintWriter pw = new PrintWriter(path);

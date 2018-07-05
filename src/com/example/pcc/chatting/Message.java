@@ -67,6 +67,14 @@ public class Message implements Serializable {
         return kind;
     }
 
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setKind(String kind) {
+        this.kind = kind;
+    }
+
     public void printMessage() {
         System.out.println("from : " + from +
                 "\n to : " + to +

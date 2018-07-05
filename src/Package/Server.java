@@ -36,6 +36,14 @@ public class Server {
     }
 
     static Client getUserThreadByName(String to) {
-        return users.get(to);
+        return users.getOrDefault(to,null);
+
+    }
+
+    static void removeSocket(String userName) {
+        synchronized (lock1){
+            users.remove(userName);
+        }
+
     }
 }

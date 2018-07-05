@@ -57,6 +57,7 @@ public class Client implements Runnable {
                 offline();
                 try {
                     this.client.close();
+                    Server.removeSocket(this.user.getUserName());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -78,12 +79,16 @@ public class Client implements Runnable {
                     break;
 
                 case "sign_out":
+                    Data.signOut(user.getUserName());
+                    refuse();
                     break;
 
                 case "delete_account":
                     break;
 
-                case "delete_message":
+                case "deleted-message":
+                    // ChatHistory.deleteMessage(msg);
+                    // cleanItFromClient(msg);
                     break;
 
                 case "change_status":
@@ -92,18 +97,30 @@ public class Client implements Runnable {
                 case "change_nickName":
                     break;
             }
-
         }
     }
 
+
     private void messaging(Message msg) {
-        msg.setDate();
-        ChatHistory.storeMessage(msg);
-        boolean successSend = sendMessage(msg);
-        if (!successSend) {
-            System.out.println("the receiver is offline .. will added to queue ");
-            TemporaryStore.addToQueue(msg);
+        switch (msg.getType()) {
+            case "text-message":
+                msg.setDate();
+                ChatHistory.storeMessage(msg);
+                boolean successSend = sendMessage(msg);
+                if (!successSend) {
+                    System.out.println("the receiver is offline .. will added to queue ");
+                    TemporaryStore.addToQueue(msg);
+                }
+                break;
+
+            case "video-message":
+                break;
+            case "audio-message":
+                break;
+            case "image-message":
+                break;
         }
+
     }
 
     private void searchRequest(Message msg) {
@@ -190,14 +207,17 @@ public class Client implements Runnable {
         oos.writeBoolean(true);//he signed in
         oos.writeUTF(user.getUserName());
         oos.flush();
-        //TODO : go to my que
         TemporaryStore.getUserMessages(user.getUserName());
     }
 
 
-    private void refuse() throws IOException {
-        oos.writeBoolean(false);
-        oos.flush();
+    private void refuse() {
+        try {
+            oos.writeBoolean(false);
+            oos.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void offline() {
